@@ -32,8 +32,9 @@
     <script>
         
         var canvas, ctx, WIDTH, HEIGHT, FPS, tileSize, playing;
-        var snake, lastDirection, playLabel, food;
+        var snake, lastDirection, playLabel, scoreLabel, food;
         var globalTouch = [], offset = [];
+        var score = 0, record = 0;
 
         var keys = {
             left: 37,
@@ -134,10 +135,10 @@
         }
 
         function changeOrientation(e) {
-			resize();
+			resizeWindow();
 
 			if (isLandscape())
-				playLabel.setText("touchToPlay");
+				playLabel.setText("landscape");
 
 			else if (!playing)  {
 				playLabel.setText("portrait");
@@ -176,6 +177,8 @@
             snake = new Snake();
             food = new Food();
             playLabel = new PlayLabel();
+            score = 0;
+            scoreLabel = new ScoreLabel();
 
             playing = false;
         }
@@ -222,6 +225,20 @@
 			}
 		}
 
+        function ScoreLabel(){
+            this.scoreText = score + " pontos";
+            this.recordText = "Recorde: " + record;
+            this.color = "#5d8357"; 
+
+            this.draw = function (){
+                ctx.fillStyle = this.color;
+                ctx.font = tileSize * 2 + "px Arial";
+                ctx.fillText(this.scoreText, tileSize , tileSize * 2);
+
+                ctx.fillText(this.recordText, WIDTH - ctx.measureText(this.text).width - tileSize * 2, tileSize * 2);
+            }
+        }
+
         function Snake(){
             this.body = [[10, 10], [10, 11], [10, 12]];
             this.color = "#000";
@@ -245,7 +262,6 @@
 
                 }
 
-                console.log(nextPos);
                 if(nextPos[0] < 0 || nextPos[0] > 50 || nextPos[1] < 0 || nextPos[1] > 50){
                     newGame();
                 }
@@ -282,6 +298,11 @@
 			if (snake.body[0][0] == food.position[0] && snake.body[0][1] == food.position[1]) {
 				snake.body.splice(snake.body.length - 1, 0, [snake.body[snake.body.length - 1]]);
 				food = new Food();
+                score += 1;
+                if(score > record){
+                    record = score;
+                }
+                scoreLabel = new ScoreLabel();
 			}
 
         }
@@ -291,6 +312,7 @@
 
             snake.draw();
             food.draw();
+            scoreLabel.draw();
 
             if(!playing){
                 playLabel.draw();
