@@ -59,6 +59,28 @@
 			return (WIDTH > HEIGHT);
 		}
         
+        function rgb2hex(rgb) {
+            rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            function hex(x) {
+                return ("0" + parseInt(x).toString(16)).slice(-2);
+            }
+            return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+        }
+
+        var incrementColor = function(color, step){
+            var colorToInt = parseInt(color.substr(1), 16),                     
+                nstep = parseInt(step);                                         
+            if(!isNaN(colorToInt) && !isNaN(nstep)){                            
+                colorToInt += nstep;                                            
+                var ncolor = colorToInt.toString(16);                           
+                ncolor = '#' + (new Array(7-ncolor.length).join(0)) + ncolor;   
+                if(/^#[0-9a-f]{6}$/i.test(ncolor)){                             
+                    return ncolor;
+                }
+            }
+            return color;
+        };
+
         function touchEnd(e){
             if (!playing){
 				return;
@@ -167,8 +189,6 @@
             document.body.appendChild(canvas);
             ctx = canvas.getContext("2d");
 
-            FPS = 15;
-
             newGame();
             run();
         }
@@ -178,14 +198,17 @@
             food = new Food();
             playLabel = new PlayLabel();
             score = 0;
+            FPS = 15;
             scoreLabel = new ScoreLabel();
+
+            document.querySelector("canvas").style.background = "#9ccb95";
 
             playing = false;
         }
 
         function PlayLabel(){
             this.text;
-            this.color = "#5d8357";
+            this.color = "#545454";
             this.messages = {
                 portrait: "Rotacione a tela para jogar",
                 landscape: "Arraste para jogar",
@@ -228,14 +251,14 @@
         function ScoreLabel(){
             this.scoreText = score + " pontos";
             this.recordText = "Recorde: " + record;
-            this.color = "#5d8357"; 
+            this.color = "#545454"; 
 
             this.draw = function (){
                 ctx.fillStyle = this.color;
                 ctx.font = tileSize * 2 + "px Arial";
                 ctx.fillText(this.scoreText, tileSize , tileSize * 2);
 
-                ctx.fillText(this.recordText, WIDTH - ctx.measureText(this.text).width - tileSize * 2, tileSize * 2);
+                ctx.fillText(this.recordText, WIDTH - ctx.measureText(this.text).width - tileSize * 2.5, tileSize * 2);
             }
         }
 
@@ -282,25 +305,32 @@
         function update(){
             snake.update();
 
-            // colide comigo mesmo
+            // colide com si mesma
 			for (var i = 1; i < snake.body.length; i++) {
 				if (snake.body[0][0] == snake.body[i][0] && snake.body[0][1] == snake.body[i][1]){
 					newGame();
                 }
 			}
 
-			// colide com os cantos
+			// colide com cantos
 			if (snake.body[0][0] < 0 || snake.body[0][0] * tileSize > WIDTH || snake.body[0][1] < 0 || snake.body[0][1] * tileSize > HEIGHT){
 				newGame();
             }
 			
-			// colide com a comida
+			// colide com comida
 			if (snake.body[0][0] == food.position[0] && snake.body[0][1] == food.position[1]) {
 				snake.body.splice(snake.body.length - 1, 0, [snake.body[snake.body.length - 1]]);
 				food = new Food();
                 score += 1;
                 if(score > record){
                     record = score;
+                }
+                if(score % 5 == 0){
+                    // Aumenta velocidade
+                    FPS += 2;
+                    // Escurece o fundo
+                    document.querySelector("canvas").style.background = incrementColor(rgb2hex(document.querySelector("canvas").style.background).replace("#", ""), -2048);
+                    scoreLabel
                 }
                 scoreLabel = new ScoreLabel();
 			}
