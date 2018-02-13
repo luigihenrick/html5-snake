@@ -285,9 +285,11 @@
 
                 }
 
-                if(nextPos[0] < 0 || nextPos[0] > 50 || nextPos[1] < 0 || nextPos[1] > 50){
-                    newGame();
-                }
+                // console.log(nextPos[0] + ", " + nextPos[1]);
+
+                // if(nextPos[0] < 0 || nextPos[0] > 50 || nextPos[1] < 0 || nextPos[1] > 50){
+                //     newGame();
+                // }
 
                 this.body.pop();
                 this.body.splice(0, 0, nextPos);
@@ -297,7 +299,7 @@
                 ctx.fillStyle = this.color;
 
                 for(var i = 0; i < this.body.length; i++){
-                    ctx.fillRect(this.body[i][0] * tileSize, this.body[i][1] * tileSize, tileSize, tileSize);
+                    ctx.fillRect(this.body[i][0] * tileSize, this.body[i][1] * tileSize, tileSize - 1, tileSize - 1);
                 }
             };
         }
@@ -312,10 +314,21 @@
                 }
 			}
 
-			// colide com cantos
-			if (snake.body[0][0] < 0 || snake.body[0][0] * tileSize > WIDTH || snake.body[0][1] < 0 || snake.body[0][1] * tileSize > HEIGHT){
-				newGame();
+            if(snake.body[0][0] < 0){
+                snake.body[0][0] = Math.floor(WIDTH / tileSize);
+            } else if(snake.body[0][0] > WIDTH / tileSize){
+                snake.body[0][0] = 0;
             }
+            if(snake.body[0][1] < 0){
+                snake.body[0][1] = Math.floor(HEIGHT / tileSize);
+            } else if(snake.body[0][1] > HEIGHT / tileSize){
+                snake.body[0][1] = 0;
+            }
+
+			// colide com cantos
+			// if (snake.body[0][0] < 0 || snake.body[0][0] * tileSize > WIDTH || snake.body[0][1] < 0 || snake.body[0][1] * tileSize > HEIGHT){
+			// 	newGame();
+            // }
 			
 			// colide com comida
 			if (snake.body[0][0] == food.position[0] && snake.body[0][1] == food.position[1]) {
